@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "human-typer-mvp"
+version = "0.1.0"
+description = "Type text as real keystrokes into the focused field, with adjustable human-like accuracy profiles."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "SID-6921" }]
+dependencies = [
+    "pynput>=1.7.7"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+human-typer = "human_typer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"human_typer" = ["py.typed"]

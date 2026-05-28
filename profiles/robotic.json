@@ -1,0 +1,11 @@
+{
+  "wpm": 90,
+  "wpm_jitter": 0.0,
+  "typo_rate": 0.0,
+  "auto_correct": false,
+  "correction_delay_ms": 0,
+  "thinking_pauses": false,
+  "newline_pause_ms": 0,
+  "punct_pause_ms": 0,
+  "shift_pause_ms": 0
+}
