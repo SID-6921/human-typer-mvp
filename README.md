@@ -1,119 +1,160 @@
 # human-typer
 
 **Type any text into any focused window — like a real human typing.**
-A tiny Windows app for when paste (`Ctrl+V`) is blocked or unavailable.
+For when paste (`Ctrl+V`) is blocked, disabled, or impossible.
 
-> Two-step UX:
-> **1.** Double-click `Run.bat` → a small window opens.
-> **2.** Paste your text, click **Start**, click into the target field (Word, browser, etc.) within 10 seconds.
->
-> That's it. No command line. No Git. Works on a locked-down office laptop.
+A tiny Windows app. No CLI required. No admin rights. No Git. Runs on a
+locked-down office laptop.
 
 ---
 
-## Install (one time, ~2 minutes)
+## TL;DR
 
-You have **two ways** to install. Pick whichever your laptop allows.
+> **The 30-second version:**
+> 1. Download **`human-typer.exe`** from the [latest release](https://github.com/SID-6921/human-typer-mvp/releases/latest).
+> 2. Double-click it. A small window opens.
+> 3. Paste your text → click **Start** → click into Word / your form within 10 seconds.
+> 4. Press **Esc** any time to stop.
+>
+> That's it.
 
-### Option 1 — Prebuilt single .exe (easiest)
+---
 
-1. Go to <https://github.com/SID-6921/human-typer-mvp/releases/latest>.
-2. Download **`human-typer.exe`**.
-3. Double-click it. Done — no Python, no install, nothing else.
+## Why this exists
 
-*(If there's no release yet, use Option 2.)*
+Sometimes you have text on one side and a text box on the other, and the gap
+between them is artificially closed:
 
-### Option 2 — From source (needs Python 3.10+)
+- A web form that disables paste.
+- A remote-desktop or Citrix session with no shared clipboard.
+- A kiosk-style app that swallows `Ctrl+V`.
+- A screen recording where you want typing to *look* like typing, not like a
+  paste.
+- An accessibility need to feed long passages into apps that don't support
+  assistive input well.
 
-1. **Get Python** — Microsoft Store → search **"Python 3.12"** → Install.
-   (No admin password needed. If the Store is blocked, get the official
-   installer from <https://www.python.org/downloads/windows/>.)
-2. **Get this project**:
-   - Go to <https://github.com/SID-6921/human-typer-mvp>
-   - Click green **Code** → **Download ZIP**
-   - Right-click the ZIP → **Extract All…**
-3. **Open the extracted folder** and **double-click `Run.bat`**.
-   - First launch only: it creates a small private Python environment inside
-     the folder and installs one dependency (`pynput`). Takes ~30 seconds.
-   - Every launch after that: the GUI opens immediately.
+`human-typer` solves this the boring, reliable way: it sends real keystrokes,
+one at a time, into whatever window has focus — with adjustable speed and
+optional realistic typos.
 
-### Option 3 — Fully offline (air-gapped / no-internet office laptop)
+> Use it only where you're allowed to automate keyboard input.
+> Do **not** use it to defeat anti-cheat, exam-proctoring, or platform Terms
+> of Service.
 
-Do this on a PC that *does* have internet, once:
+---
+
+## Install — pick whichever your laptop allows
+
+There are three install paths, ordered from easiest to most restricted
+environment. They all produce the same app.
+
+### Option 1 — Single `.exe` (zero install)
+
+Best for: **most people**, especially office laptops.
+
+1. Open <https://github.com/SID-6921/human-typer-mvp/releases/latest>.
+2. Under **Assets**, download **`human-typer.exe`**.
+3. Double-click it. Done.
+
+No Python, no folder, no setup. To uninstall: delete the file.
+
+> On first launch Windows SmartScreen may warn that the publisher is unknown.
+> Click *More info → Run anyway* if you trust the source.
+
+### Option 2 — From source (needs Python 3.10+, has internet)
+
+Best for: **developers**, or laptops where `.exe` downloads are blocked but
+Python is available.
+
+1. **Install Python** from the Microsoft Store (search *"Python 3.12"*).
+   No admin password needed. If the Store is blocked, use the official
+   installer from <https://www.python.org/downloads/windows/>.
+2. **Get the project**: go to
+   <https://github.com/SID-6921/human-typer-mvp>, click green **Code →
+   Download ZIP**, extract anywhere.
+3. **Double-click `Run.bat`** in the extracted folder.
+   - First launch (~30 s): creates a private Python environment in `.venv\`
+     and installs the one dependency (`pynput`).
+   - Every launch after: the GUI opens immediately.
+
+To uninstall: delete the folder.
+
+### Option 3 — Fully offline (air-gapped office laptop)
+
+Best for: **no internet on the target laptop**.
+
+On any PC that *does* have internet:
 
 ```powershell
-# inside the extracted folder, on an online PC:
+# inside the extracted folder, on the online PC:
 powershell -ExecutionPolicy Bypass -File .\Download-Wheels.ps1
 ```
 
-That creates a `vendor\` folder with all needed wheels. Copy the whole project
-folder (now including `vendor\`) to the offline laptop via USB. Double-click
-`Run.bat` there — it automatically installs from `vendor\` without touching
-the internet.
-
-To uninstall any of the above: just delete the folder (or the `.exe`).
+This creates a `vendor\` folder containing all needed wheels. Copy the entire
+project folder (now including `vendor\`) to the offline laptop via USB.
+Double-click `Run.bat` there — it auto-detects `vendor\` and installs from it
+with no internet access.
 
 ---
 
-## Using it
+## Using the app
 
-The GUI window has four things:
+The window has four things:
 
-| Control               | What it does                                                |
-|-----------------------|-------------------------------------------------------------|
-| **Big text area**     | Paste the text you want typed.                              |
-| **Profile dropdown**  | `natural` / `fast` / `robotic` / `careful` — preset speeds. |
-| **Speed (WPM) slider**| Override profile speed on the fly.                          |
-| **Typos % slider**    | 0 = perfect typing, higher = more human-like mistakes.      |
+| Control                | What it does                                                |
+|------------------------|-------------------------------------------------------------|
+| **Big text area**      | Paste the text you want typed.                              |
+| **Profile** dropdown   | `natural` / `fast` / `robotic` / `careful` — preset styles. |
+| **Speed (WPM)** slider | Override the profile's speed on the fly.                    |
+| **Typos %** slider     | 0 = perfect typing, higher = more human-like mistakes.      |
 
 Buttons:
 
-- **Load file…** — load a `.txt` file instead of pasting.
+- **Load file…** — load text from a `.txt` file.
 - **Paste from clipboard** — fill the text area from your clipboard.
-- **Dry run** — show what *would* be typed inside the GUI; no real keystrokes.
-- **Start (10s countdown)** — start a 10-second countdown, then type for real.
-- **Pause / Resume** and **Stop** — control mid-typing.
+- **Dry run** — open a preview window and show what *would* be typed. No real
+  keystrokes are sent. Recommended for your first run.
+- ▶ **Start** — begin the countdown (default 10 s), then type for real.
+- ⏸ **Pause (F8)** / ⏹ **Stop (Esc)** — control mid-typing.
 
-**Global hotkeys** (work even when the GUI isn't focused):
+**Global hotkeys** (work even when the GUI isn't focused, so you can always
+take back control):
 
-- **F8** — Pause / Resume
-- **Esc** — Stop
+| Key   | Action          |
+|-------|-----------------|
+| **F8**  | Pause / Resume |
+| **Esc** | Stop          |
 
 Your last-used **profile, speed, typo %, countdown, and window size** are
 remembered automatically in `%APPDATA%\human-typer\config.json` and restored
 the next time you open the app.
 
-### Typical flow
+### A typical run
 
-1. Open Word (or the web form, or the remote-desktop window) and click into
-   the text field you want filled.
+1. Open Word (or the web form / remote desktop / etc.) and click into the
+   text field you want filled.
 2. Switch to the human-typer window. Paste your text. Pick a profile.
 3. Click **Start**.
-4. **Within 10 seconds, click back into your target field.**
+4. **Within 10 seconds, click back into your target field** and leave it
+   focused.
 5. The tool types your text into wherever your cursor is, with realistic
    pauses and (optionally) the occasional auto-corrected typo.
 
 ---
 
-## Power-user CLI (optional)
+## Profiles cheat sheet
 
-If you prefer the terminal:
+You almost never need to edit these — the GUI sliders override them.
 
-```powershell
-.\.venv\Scripts\python.exe -m human_typer --text "hello world"
-.\.venv\Scripts\python.exe -m human_typer --file mytext.txt --profile natural --countdown 10
-.\.venv\Scripts\python.exe -m human_typer --file mytext.txt --wpm 90 --typo-rate 0.01 --dry-run
-```
+| Profile  | Speed     | Typos | Auto-corrects | Best for |
+|----------|-----------|-------|---------------|----------|
+| natural  | ~60 WPM   | ~2.5% | yes           | Looks like a real person. Default. |
+| fast     | ~120 WPM  | ~0.5% | yes           | Quick but still human-ish. |
+| robotic  | ~90 WPM   | 0%    | n/a           | Constant speed, zero mistakes. |
+| careful  | ~35 WPM   | 0%    | n/a           | Slow, deliberate, fragile forms / slow RDP. |
 
-Bundled profiles live in `profiles/`. You can pass either a profile **name**
-(`natural`, `fast`, `robotic`, `careful`) or a path to your own JSON file.
-
----
-
-## Profiles
-
-A profile is a tiny JSON file in `profiles/`. You almost never need to touch
-these — the GUI sliders override them. Fields:
+Profiles are plain JSON files inside the package
+(`src/human_typer/profiles/*.json`). Fields:
 
 ```json
 {
@@ -131,14 +172,30 @@ these — the GUI sliders override them. Fields:
 
 ---
 
+## Power-user CLI (optional)
+
+If you'd rather drive it from the terminal:
+
+```powershell
+.\.venv\Scripts\python.exe -m human_typer --text "hello world"
+.\.venv\Scripts\python.exe -m human_typer --file mytext.txt --profile natural --countdown 10
+.\.venv\Scripts\python.exe -m human_typer --file mytext.txt --wpm 90 --typo-rate 0.01 --dry-run
+```
+
+`--profile` accepts a bundled name (`natural`, `fast`, `robotic`, `careful`)
+or a path to your own JSON file.
+
+---
+
 ## Safety
 
-- Only sends keystrokes. No screen reading. No network calls.
+- **Only sends keystrokes.** It does not read your screen, your clipboard
+  (unless you click *Paste from clipboard* yourself), or the target app's
+  contents.
+- **No network calls.** There is no network code in the project.
 - Types into **whatever window has focus** when the countdown ends — always
   confirm the right window is focused.
 - **Esc** stops it instantly.
-- Use on systems where you're allowed to automate keyboard input. Don't use
-  it against anti-cheat, exam-proctoring, or platform Terms of Service.
 
 ---
 
@@ -149,19 +206,52 @@ Open PowerShell in the folder and run `python --version`. If Python isn't
 recognised, install it from the Microsoft Store and reopen PowerShell.
 
 **Typing goes into the wrong window**
-You didn't focus the target window during the 10s countdown. Press **Esc**
-to stop and try again.
+You didn't focus the target window during the countdown. Press **Esc** to
+stop, increase the countdown in the GUI (or `--countdown 15` on the CLI),
+try again.
 
 **Nothing happens after countdown**
-Some remote-desktop clients only accept input after you click *inside* the
-window (not just bring it forward). Click into the actual field first.
+Some remote-desktop / VM / Citrix clients only accept input once you click
+*inside* the window (not just bring it forward). Click into the actual field
+first.
+
+**It's typing way too slowly / too fast**
+Drag the **Speed (WPM)** slider. Or set `--wpm 90` on the CLI.
 
 **Corporate proxy blocks `pip install`**
-Set the proxy before launching `Run.bat`:
+Either use the prebuilt `.exe` (Option 1) or set the proxy before launching
+`Run.bat`:
 ```powershell
 $env:HTTPS_PROXY = "http://proxy.company.local:8080"
 $env:HTTP_PROXY  = "http://proxy.company.local:8080"
 .\Run.bat
+```
+Or use the offline-wheels path (Option 3) and skip the network entirely.
+
+**I want to stop *right now***
+Press **Esc**.
+
+---
+
+## What's inside
+
+```
+human-typer-mvp/
+├── src/human_typer/
+│   ├── gui.py            # Tkinter GUI (primary entry point)
+│   ├── cli.py            # CLI (power users)
+│   ├── engine.py         # timing, typos, auto-corrections
+│   ├── keyboard.py       # real keystroke backend + dry-run backend
+│   ├── profile.py        # JSON profile loader
+│   ├── settings.py       # remembers last-used preferences
+│   ├── hotkeys.py        # global F8 / Esc listener
+│   └── profiles/         # natural / fast / robotic / careful JSON
+├── tests/                # pytest suite (uses dry-run backend, no real keys)
+├── .github/workflows/    # builds the Windows .exe on every tag
+├── Run.bat               # one-click launcher (auto-creates .venv)
+├── Download-Wheels.ps1   # prepare an offline-install bundle
+├── pyproject.toml
+└── README.md
 ```
 
 ---
