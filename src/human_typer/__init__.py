@@ -1,2 +1,2 @@
-"""human-typer: type text as real keystrokes with adjustable accuracy."""
-__version__ = "0.1.0"
+"""human-typer: type text into the focused window like a real human."""
+__version__ = "0.2.0"
