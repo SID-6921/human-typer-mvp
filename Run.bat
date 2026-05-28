@@ -17,14 +17,22 @@ if not exist ".venv\Scripts\python.exe" (
         pause
         exit /b 1
     )
-    echo [setup] Installing dependency: pynput ...
-    ".venv\Scripts\python.exe" -m pip install --upgrade pip --quiet
-    ".venv\Scripts\python.exe" -m pip install -e . --quiet
+
+    if exist "vendor" (
+        echo [setup] Offline mode: installing from local 'vendor' folder...
+        ".venv\Scripts\python.exe" -m pip install --no-index --find-links vendor --upgrade pip setuptools wheel --quiet
+        ".venv\Scripts\python.exe" -m pip install --no-index --find-links vendor -e . --quiet
+    ) else (
+        echo [setup] Online mode: installing dependency 'pynput' from PyPI...
+        ".venv\Scripts\python.exe" -m pip install --upgrade pip --quiet
+        ".venv\Scripts\python.exe" -m pip install -e . --quiet
+    )
     if errorlevel 1 (
         echo.
-        echo ERROR: pip install failed. If you are on a corporate network,
-        echo set HTTPS_PROXY and HTTP_PROXY environment variables, then try
-        echo again.
+        echo ERROR: pip install failed.
+        echo - If you are on a corporate network, set HTTPS_PROXY / HTTP_PROXY.
+        echo - Or run Download-Wheels.ps1 on an online PC, copy this folder over,
+        echo   and try again (offline mode will be used automatically).
         pause
         exit /b 1
     )

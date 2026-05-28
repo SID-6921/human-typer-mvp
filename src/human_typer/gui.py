@@ -9,6 +9,7 @@ from tkinter import filedialog, messagebox, ttk
 from .engine import ControlState, type_text
 from .keyboard import DryRunBackend, PynputBackend
 from .profile import BUNDLED, Profile
+from .settings import Settings
 
 
 APP_TITLE = "human-typer"
@@ -23,9 +24,16 @@ class App:
 
         self.control = ControlState()
         self.worker: threading.Thread | None = None
+        self.settings = Settings.load()
+        if self.settings.window_geometry:
+            try:
+                self.root.geometry(self.settings.window_geometry)
+            except Exception:
+                pass
 
         self._build_ui()
         self._start_hotkeys()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
     # ---------- UI ----------
     def _build_ui(self) -> None:
@@ -53,28 +61,28 @@ class App:
         ctrl.pack(fill="x", **pad)
 
         ttk.Label(ctrl, text="Profile:").grid(row=0, column=0, sticky="w", padx=8, pady=6)
-        self.profile_var = tk.StringVar(value="natural")
+        self.profile_var = tk.StringVar(value=self.settings.profile)
         ttk.Combobox(ctrl, textvariable=self.profile_var, values=sorted(BUNDLED),
                      state="readonly", width=12).grid(row=0, column=1, sticky="w", pady=6)
 
         ttk.Label(ctrl, text="Speed (WPM):").grid(row=0, column=2, sticky="e", padx=(20, 4))
-        self.wpm_var = tk.IntVar(value=60)
+        self.wpm_var = tk.IntVar(value=self.settings.wpm)
         ttk.Scale(ctrl, from_=20, to=200, orient="horizontal", variable=self.wpm_var,
                   length=180, command=lambda _=None: self.wpm_lbl.config(text=str(self.wpm_var.get()))
                   ).grid(row=0, column=3, sticky="w")
-        self.wpm_lbl = ttk.Label(ctrl, text="60", width=4)
+        self.wpm_lbl = ttk.Label(ctrl, text=str(self.settings.wpm), width=4)
         self.wpm_lbl.grid(row=0, column=4, sticky="w")
 
         ttk.Label(ctrl, text="Typos %:").grid(row=1, column=2, sticky="e", padx=(20, 4))
-        self.typo_var = tk.DoubleVar(value=2.5)
+        self.typo_var = tk.DoubleVar(value=self.settings.typo_percent)
         ttk.Scale(ctrl, from_=0, to=15, orient="horizontal", variable=self.typo_var,
                   length=180, command=lambda _=None: self.typo_lbl.config(text=f"{self.typo_var.get():.1f}")
                   ).grid(row=1, column=3, sticky="w")
-        self.typo_lbl = ttk.Label(ctrl, text="2.5", width=4)
+        self.typo_lbl = ttk.Label(ctrl, text=f"{self.settings.typo_percent:.1f}", width=4)
         self.typo_lbl.grid(row=1, column=4, sticky="w")
 
         ttk.Label(ctrl, text="Countdown (s):").grid(row=1, column=0, sticky="w", padx=8, pady=6)
-        self.countdown_var = tk.IntVar(value=10)
+        self.countdown_var = tk.IntVar(value=self.settings.countdown)
         ttk.Spinbox(ctrl, from_=2, to=60, textvariable=self.countdown_var, width=5).grid(row=1, column=1, sticky="w")
 
         # Action row
@@ -240,6 +248,17 @@ class App:
         listener = keyboard.Listener(on_press=on_press)
         listener.daemon = True
         listener.start()
+
+    def _on_close(self) -> None:
+        try:
+            self.settings.profile = self.profile_var.get()
+            self.settings.wpm = int(self.wpm_var.get())
+            self.settings.typo_percent = float(self.typo_var.get())
+            self.settings.countdown = int(self.countdown_var.get())
+            self.settings.window_geometry = self.root.geometry()
+            self.settings.save()
+        finally:
+            self.root.destroy()
 
 
 def main() -> int:

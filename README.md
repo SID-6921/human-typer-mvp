@@ -13,7 +13,17 @@ A tiny Windows app for when paste (`Ctrl+V`) is blocked or unavailable.
 
 ## Install (one time, ~2 minutes)
 
-**You only need Python 3.10+.** Nothing else.
+You have **two ways** to install. Pick whichever your laptop allows.
+
+### Option 1 — Prebuilt single .exe (easiest)
+
+1. Go to <https://github.com/SID-6921/human-typer-mvp/releases/latest>.
+2. Download **`human-typer.exe`**.
+3. Double-click it. Done — no Python, no install, nothing else.
+
+*(If there's no release yet, use Option 2.)*
+
+### Option 2 — From source (needs Python 3.10+)
 
 1. **Get Python** — Microsoft Store → search **"Python 3.12"** → Install.
    (No admin password needed. If the Store is blocked, get the official
@@ -27,7 +37,21 @@ A tiny Windows app for when paste (`Ctrl+V`) is blocked or unavailable.
      the folder and installs one dependency (`pynput`). Takes ~30 seconds.
    - Every launch after that: the GUI opens immediately.
 
-That's the whole install. To uninstall, delete the folder.
+### Option 3 — Fully offline (air-gapped / no-internet office laptop)
+
+Do this on a PC that *does* have internet, once:
+
+```powershell
+# inside the extracted folder, on an online PC:
+powershell -ExecutionPolicy Bypass -File .\Download-Wheels.ps1
+```
+
+That creates a `vendor\` folder with all needed wheels. Copy the whole project
+folder (now including `vendor\`) to the offline laptop via USB. Double-click
+`Run.bat` there — it automatically installs from `vendor\` without touching
+the internet.
+
+To uninstall any of the above: just delete the folder (or the `.exe`).
 
 ---
 
@@ -54,6 +78,10 @@ Buttons:
 
 - **F8** — Pause / Resume
 - **Esc** — Stop
+
+Your last-used **profile, speed, typo %, countdown, and window size** are
+remembered automatically in `%APPDATA%\human-typer\config.json` and restored
+the next time you open the app.
 
 ### Typical flow
 
